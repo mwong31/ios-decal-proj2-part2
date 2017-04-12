@@ -38,8 +38,52 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         guard let email = emailField.text else { return }
         guard let password = passwordField.text else { return }
         guard let name = nameField.text else { return }
-        
         // YOUR CODE HERE
+        
+        
+        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: {
+            (user, error) in
+            if let error = error {
+                let alert = UIAlertController(title: "Error!", message: "Could not sign up", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            }
+            else {
+                let changeRequest = user!.profileChangeRequest()
+                changeRequest.displayName = name
+                changeRequest.commitChanges(completion: {
+                    (err) in
+                    if let err = err {
+                        let alert = UIAlertController(title: "Error!", message: "Could not sign up", preferredStyle: UIAlertControllerStyle.alert)
+                        alert.addAction(UIAlertAction(title: "Okay!", style: UIAlertActionStyle.default, handler: nil))
+                        self.present(alert, animated: true, completion: nil)
+                    } else {
+                        self.performSegue(withIdentifier: "signupToMain", sender: self)
+                    }
+                })
+            }
+        })
+        
+        
+//        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: {(user, error) in
+//            if let error = error {
+//                let failedSignup = UIAlertController(title: "Failed to sign up.", message: "Please enter valid email and password.", preferredStyle: UIAlertControllerStyle.alert)
+//                failedSignup.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+//                self.present(failedSignup, animated:true)
+//            } else {
+//                let changeRequest = user!.profileChangeRequest()
+//                changeRequest.displayName = name
+//                changeRequest.commitChanges(completion: { (err) in
+//                    if let err = err {
+//                        let failedChange = UIAlertController(title: "Failed to switch users.", message: "Please enter valid email and password.", preferredStyle: UIAlertControllerStyle.alert)
+//                        failedChange.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+//                        self.present(failedChange, animated:true)
+//                    } else {
+//                        self.performSegue(withIdentifier: "signupToMain", sender: self)
+//                    }
+//                })
+//            }
+//        })
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

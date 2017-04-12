@@ -47,11 +47,13 @@ class PostsTableViewController: UIViewController, UITableViewDelegate, UITableVi
     }
     /*
         TODO:
-        Call the function to retrieve data for our tableview. 
+        Call the function to retrieve data for our tableview.
         (Hint): This should be pretty simple.
     */
     override func viewWillAppear(_ animated: Bool) {
         // YOUR CODE HERE
+        updateData()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -72,6 +74,20 @@ class PostsTableViewController: UIViewController, UITableViewDelegate, UITableVi
     */
     func updateData() {
         // YOUR CODE HERE
+        getPosts(user: currentUser, completion: { (posts) in
+            clearThreads()
+            for currPost in posts! {
+                addPostToThread(post: currPost)
+                getDataFromPath(path: currPost.postImagePath, completion: { (data) in
+                    if data != nil {
+                        let image = UIImage(data: data!)
+                        self.loadedImagesById[currPost.postId] = image
+                    }
+                
+                })
+            }
+            self.postTableView.reloadData()
+        })
     }
     
     // MARK: Custom methods (relating to UI)
@@ -145,6 +161,8 @@ class PostsTableViewController: UIViewController, UITableViewDelegate, UITableVi
             post.read = true
             
             // YOUR CODE HERE
+        //FIRDatabase.database().reference().child(firUsersNode).child(currentUser.id).child(firReadPostsNode).setValue(post.postId)
+            currentUser.addNewReadPost(postID: post.postId)
             
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }
